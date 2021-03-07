@@ -7,8 +7,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - python-venv-{{ checksum "requirements.txt" }}
-            - python-venv-
+            - python-venv-a-{{ checksum "requirements.txt" }}
+            - python-venv-a-
       - run:
           name: setup python venv and install requirements
           command: |
@@ -17,7 +17,7 @@ jobs:
             pip install -r requirements.txt
       - save_cache:
           paths: [.venv]
-          key: python-venv-{{ checksum "requirements.txt" }}
+          key: python-venv-a-{{ checksum "requirements.txt" }}
   
   setup-hadolint:
     docker:
@@ -47,8 +47,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - python-venv-{{ checksum "requirements.txt" }}
-            - python-venv-
+            - python-venv-a-{{ checksum "requirements.txt" }}
+            - python-venv-a-
       - run:
           name: linting application and smoke test
           command: |
