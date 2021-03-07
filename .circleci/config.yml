@@ -23,13 +23,13 @@ jobs:
     docker:
       - image: cimg/python:3.9.2
     environment:
-      HADOLINT_DL_ADDR: "https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64"
+      HADOLINT_DL_ADDR: "https://github.com/hadolint/hadolint/releases/download/v1.23.0/hadolint-Linux-x86_64"
     steps:
       - restore_cache:
           keys: 
             - hadolint-$HADOLINT_DL_ADDR
       - run:
-          name: setup python venv and install requirements
+          name: install hadolint binary
           command: |
             if [ ! -f ./hadolint/hadolint ] ; then
               mkdir -p hadolint/ || true
@@ -50,8 +50,9 @@ jobs:
             - python-venv-{{ checksum "requirements.txt" }}
             - python-venv-
       - run:
-          name: liniting application and smoke test
+          name: linting application and smoke test
           command: |
+            . .venv/bin/activate
             pylint *.py
   lint-dockerfile:
     docker:
