@@ -67,15 +67,27 @@ jobs:
           name: linting application dockerfile
           command: |
             ./hadolint/hadolint Dockerfile
-
+  build-app-container:
+    docker:
+        - image: cimg/python:3.9.2
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run: |
+          TAG=0.1.$CIRCLE_BUILD_NUM
+          docker build -t foo/cowsay-app:$TAG .
 workflows:
   default:
     jobs:
       - setup-python-venv
       - setup-hadolint
       - lint-app:
-          requires: [setup-python-venv, setup-hadolint]
+          requires: [setup-python-venv]
       - lint-dockerfile:
           requires: [setup-hadolint]
+      - build-app-container:
+          requires: [lint-app, lint-dockerfile]
+          
 
           
