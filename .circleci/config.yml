@@ -16,7 +16,7 @@ jobs:
             . .venv/bin/activate
             pip install -r requirements.txt
       - save_cache:
-          paths: [frontend/node_modules]
+          paths: [.venv]
           key: python-venv-{{ checksum "requirements.txt" }}
   
   setup-hadolint:
@@ -58,6 +58,10 @@ jobs:
         - image: cimg/python:3.9.2
     steps:
       - checkout
+      - restore_cache:
+          keys: 
+            - hadolint-$HADOLINT_DL_ADDR
+            - hadolint-
       - run:
           name: linting application dockerfile
           command: |
