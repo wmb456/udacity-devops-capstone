@@ -54,6 +54,23 @@ jobs:
           command: |
             . .venv/bin/activate
             pylint *.py
+  app-smoke-test:
+    docker:
+        - image: cimg/python:3.9.2
+    steps:
+      - checkout
+      - restore_cache:
+          keys: 
+            - python-venv-a-{{ checksum "requirements.txt" }}
+            - python-venv-a-
+      - run:
+          name: linting application and smoke test
+          command: |
+            . .venv/bin/activate
+            python app.py &
+            # note that sleep could cause flakiness - but ... damn.
+            sleep 1
+            nosetests -v smoke_test.py
   lint-dockerfile:
     docker:
         - image: cimg/python:3.9.2
@@ -84,10 +101,12 @@ workflows:
       - setup-hadolint
       - lint-app:
           requires: [setup-python-venv]
+      - app-smoke-test:
+          requires: [lint-app]
       - lint-dockerfile:
           requires: [setup-hadolint]
       - build-app-container:
-          requires: [lint-app, lint-dockerfile]
+          requires: [app-smoke-test, lint-dockerfile]
           
 
           
