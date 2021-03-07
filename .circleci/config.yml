@@ -1,12 +1,25 @@
 version: 2.1
 jobs:
-  check-version:
+  setup-python-venv:
     docker:
       - image: cimg/python:3.9.2
     steps:
       - checkout
-      - run: python --version
+      - restore_cache:
+          keys: 
+            - python-venv-{{ checksum requirements.txt }}
+            - python-venv-
+      - run:
+          name: Build front-end
+          command: |
+            python -m venv .venv
+            . .venv/bin/activate
+            pip install -r requirements.txt
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: python-venv-{{ checksum requirements.txt }}
+
 workflows:
   default:
     jobs:
-      - check-version
+      - setup-python-venv
