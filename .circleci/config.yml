@@ -64,7 +64,7 @@ jobs:
             - python-venv-a-{{ checksum "requirements.txt" }}
             - python-venv-a-
       - run:
-          name: linting application and smoke test
+          name: run bare application smoke test
           command: |
             . .venv/bin/activate
             python app.py &
@@ -89,11 +89,29 @@ jobs:
         - image: cimg/python:3.9.2
     steps:
       - checkout
+      - restore_cache:
+          keys: 
+            - python-venv-a-{{ checksum "requirements.txt" }}
+            - python-venv-a-
       - setup_remote_docker:
           version: 19.03.13
       - run: |
           TAG=0.1.$CIRCLE_BUILD_NUM
           docker build -t foo/cowsay-app:$TAG .
+  container-smoke-test:
+    docker:
+        - image: cimg/python:3.9.2
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run: |
+          TAG=0.1.$CIRCLE_BUILD_NUM
+          docker run --rm -d -p 8080:8080 foo/cowsay-app:$TAG
+          docker ps
+          sleep 1
+          . .venv/bin/activate
+          python smoke_test.py
 workflows:
   default:
     jobs:
@@ -107,6 +125,8 @@ workflows:
           requires: [setup-hadolint]
       - build-app-container:
           requires: [app-smoke-test, lint-dockerfile]
-          
+      - container-smoke-test:
+          requires: [build-app-container]
+            
 
           
