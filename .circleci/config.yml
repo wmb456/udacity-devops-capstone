@@ -7,17 +7,17 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - python-venv-{{ checksum requirements.txt }}
+            - python-venv-{{ checksum "requirements.txt" }}
             - python-venv-
       - run:
-          name: Build front-end
+          name: setup python venv and install requirements
           command: |
             python -m venv .venv
             . .venv/bin/activate
             pip install -r requirements.txt
       - save_cache:
           paths: [frontend/node_modules]
-          key: python-venv-{{ checksum requirements.txt }}
+          key: python-venv-{{ checksum "requirements.txt" }}
 
 workflows:
   default:
