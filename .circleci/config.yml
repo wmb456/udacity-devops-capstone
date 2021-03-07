@@ -32,7 +32,7 @@ jobs:
           name: setup python venv and install requirements
           command: |
             if [ ! -f ./hadolint/hadolint ] ; then
-              mkdir -pf hadolint/
+              mkdir -p hadolint/ || true
               wget -O ./hadolint/hadolint $HADOLINT_DL_ADDR
               chmod +x ./hadolint/hadolint
             fi
