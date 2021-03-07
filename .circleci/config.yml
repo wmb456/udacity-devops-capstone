@@ -18,8 +18,59 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: python-venv-{{ checksum "requirements.txt" }}
+  
+  setup-hadolint:
+    docker:
+      - image: cimg/python:3.9.2
+    environment:
+      HADOLINT_DL_ADDR: "https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64"
+    steps:
+      - restore_cache:
+          keys: 
+            - hadolint-$HADOLINT_DL_ADDR
+      - run:
+          name: setup python venv and install requirements
+          command: |
+            if [ ! -f ./hadolint/hadolint ] ; then
+              mkdir -pf hadolint/
+              wget -O ./hadolint/hadolint $HADOLINT_DL_ADDR
+              chmod +x ./hadolint/hadolint
+            fi
+      - save_cache:
+          paths: [hadolint]
+          key: hadolint-$HADOLINT_DL_ADDR
+
+  lint-app:
+    docker:
+        - image: cimg/python:3.9.2
+    steps:
+      - checkout
+      - restore_cache:
+          keys: 
+            - python-venv-{{ checksum "requirements.txt" }}
+            - python-venv-
+      - run:
+          name: liniting application and smoke test
+          command: |
+            pylint *.py
+  lint-dockerfile:
+    docker:
+        - image: cimg/python:3.9.2
+    steps:
+      - checkout
+      - run:
+          name: linting application dockerfile
+          command: |
+            ./hadolint/hadolint Dockerfile
 
 workflows:
   default:
     jobs:
       - setup-python-venv
+      - setup-hadolint
+      - lint-app:
+          requires: [setup-python-venv, setup-hadolint]
+      - lint-dockerfile:
+          requires: [setup-hadolint]
+
+          
