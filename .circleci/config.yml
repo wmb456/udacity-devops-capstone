@@ -121,7 +121,9 @@ jobs:
           # note again that sleep could cause flakiness - but ... damn, again.
           sleep 1
           . .venv/bin/activate
+          echo 'performing smoke test...'
           python smoke_test.py
+          echo 'done.'
 workflows:
   default:
     jobs:
