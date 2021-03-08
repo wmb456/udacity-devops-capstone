@@ -110,8 +110,7 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13
       - run: |
-          TAG=0.1.$CIRCLE_BUILD_NUM
-          docker run --rm -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:$TAG
+          docker run --rm -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:latest
           docker ps
           sleep 1
           . .venv/bin/activate
