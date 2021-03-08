@@ -97,7 +97,11 @@ jobs:
           version: 19.03.13
       - run: |
           TAG=0.1.$CIRCLE_BUILD_NUM
-          docker build -t foo/cowsay-app:$TAG .
+          docker build -t cowsay-web:$TAG .
+          echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_ID} --password-stdin
+          docker tag cowsay-web:$TAG ${DOCKER_ID}/cowsay-web:$TAG
+          docker tag cowsay-web:$TAG ${DOCKER_ID}/cowsay-web:latest
+          docker push ${DOCKER_ID}/cowsay-web
   container-smoke-test:
     docker:
         - image: cimg/python:3.9.2
@@ -107,7 +111,7 @@ jobs:
           version: 19.03.13
       - run: |
           TAG=0.1.$CIRCLE_BUILD_NUM
-          docker run --rm -d -p 8080:8080 foo/cowsay-app:$TAG
+          docker run --rm -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:$TAG
           docker ps
           sleep 1
           . .venv/bin/activate
