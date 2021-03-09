@@ -131,7 +131,7 @@ jobs:
             docker run --name cowsay-web -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:latest
             docker ps
             # note again that sleep could cause flakiness - but ... damn, again.
-            sleep 3
+            sleep 1
             docker run --network container:cowsay-web --name cowsay-smoke-test cowsay-smoke-test
 workflows:
   default:
