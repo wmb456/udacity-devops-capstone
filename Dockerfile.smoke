@@ -7,4 +7,4 @@ COPY requirements.dev.txt .
 
 RUN pip install -r requirements.dev.txt
 
-CMD ["nosetest", "-v", "app.py"]
+CMD ["nosetests", "-v", "app.py"]
