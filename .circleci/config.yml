@@ -102,6 +102,8 @@ jobs:
       - run: 
           name: build application container
           command: |
+            # ToDo remove
+            exit 0
             TAG=0.1.$CIRCLE_BUILD_NUM
             docker build -t cowsay-web:$TAG .
             echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_ID} --password-stdin
