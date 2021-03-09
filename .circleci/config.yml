@@ -84,6 +84,10 @@ jobs:
           name: linting application dockerfile
           command: |
             ./hadolint/hadolint Dockerfile
+      - run:
+          name: linting smoke test dockerfile
+          command: |
+            ./hadolint/hadolint Dockerfile.smoke
   build-app-container:
     docker:
         - image: cimg/python:3.9.2
@@ -116,13 +120,17 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13
       - run:
+          name: build smoke test container
+          command: |
+            docker build -t cowsay-smoke-test -f Dockerfile.smoke .
+      - run:
           name: run smoke test against app container
           command: |
             docker run --name cowsay-web --rm -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:latest
             docker ps
             # note again that sleep could cause flakiness - but ... damn, again.
             sleep 1
-            docker run --network container:cowsay-web --name cowsay-web-smoke -v $(pwd):/smoke ${DOCKER_ID}/cowsay-web:latest nosetest -v /smoke/smoke_test.py
+            docker run --network container:cowsay-web --name cowsay-smoke-test -v $(pwd):/smoke cowsay-smoke-test
 workflows:
   default:
     jobs:
