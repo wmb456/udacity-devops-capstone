@@ -111,4 +111,4 @@ def not_found(error):
     return build_err_40x("404! The path '{}' was not found on this server.".format(request.path))
 
 
-app.run(port=8080)
+app.run(host='0.0.0.0', port=8080)
