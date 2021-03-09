@@ -118,12 +118,11 @@ jobs:
       - run:
           name: run smoke test against app container
           command: |
-            docker run --rm -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:latest
+            docker run --name cowsay-web --rm -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:latest
             docker ps
             # note again that sleep could cause flakiness - but ... damn, again.
             sleep 1
-            . .venv/bin/activate
-            nosetests -v smoke_test.py
+            docker run --network container:cowsay-web --name cowsay-web-smoke -v .:/smoke ${DOCKER_ID}/cowsay-web:latest nosetest -v /smoke/smoke_test.py
 workflows:
   default:
     jobs:
