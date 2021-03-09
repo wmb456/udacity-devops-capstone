@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY app.py  .
 COPY requirements.app.txt .
-COPY templates .
+COPY templates templates/
 
 RUN pip install -r requirements.app.txt
 
