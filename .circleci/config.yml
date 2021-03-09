@@ -128,10 +128,10 @@ jobs:
       - run:
           name: run smoke test against app container
           command: |
-            docker run --name cowsay-web --rm -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:latest
+            docker run --name cowsay-web -d -p 8080:8080 ${DOCKER_ID}/cowsay-web:latest
             docker ps
             # note again that sleep could cause flakiness - but ... damn, again.
-            sleep 1
+            sleep 3
             docker run --network container:cowsay-web --name cowsay-smoke-test cowsay-smoke-test
 workflows:
   default:
