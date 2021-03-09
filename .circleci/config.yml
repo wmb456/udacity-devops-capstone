@@ -122,7 +122,7 @@ jobs:
             docker ps
             # note again that sleep could cause flakiness - but ... damn, again.
             sleep 1
-            docker run --network container:cowsay-web --name cowsay-web-smoke -v .:/smoke ${DOCKER_ID}/cowsay-web:latest nosetest -v /smoke/smoke_test.py
+            docker run --network container:cowsay-web --name cowsay-web-smoke -v $(pwd):/smoke ${DOCKER_ID}/cowsay-web:latest nosetest -v /smoke/smoke_test.py
 workflows:
   default:
     jobs:
