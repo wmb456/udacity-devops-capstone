@@ -10,6 +10,10 @@ jobs:
             - python-venv-a-{{ checksum "requirements.txt" }}
             - python-venv-a-
       - run:
+          name: persist build number
+          command: |
+            echo "export BUILD_NUMBER=${CIRCLE_BUILD_NUM}" >> "${BASH_ENV}"
+      - run:
           name: setup python venv and install requirements
           command: |
             python -m venv .venv
@@ -90,7 +94,7 @@ jobs:
             ./hadolint/hadolint Dockerfile.smoke
   build-app-container:
     docker:
-        - image: cimg/python:3.9.2
+      - image: cimg/python:3.9.2
     steps:
       - checkout
       - restore_cache:
@@ -102,7 +106,8 @@ jobs:
       - run: 
           name: build application container
           command: |
-            TAG=0.1.$CIRCLE_BUILD_NUM
+            source "${BASH_ENV}"
+            TAG=0.1.${BUILD_NUMBER}
             docker build -t cowsay-web:$TAG .
             echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_ID} --password-stdin
             docker tag cowsay-web:$TAG ${DOCKER_ID}/cowsay-web:$TAG
@@ -110,7 +115,7 @@ jobs:
             docker push ${DOCKER_ID}/cowsay-web
   container-smoke-test:
     docker:
-        - image: cimg/python:3.9.2
+      - image: cimg/python:3.9.2
     steps:
       - checkout
       - restore_cache:
@@ -131,6 +136,25 @@ jobs:
             # note again that sleep could cause flakiness - but ... damn, again.
             sleep 1
             docker run --network container:cowsay-web --name cowsay-smoke-test cowsay-smoke-test
+  deploy-new-image:
+    docker:
+      - image:  cimg/python:3.9.2
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: update deployment using latest image
+          command: |
+            source "${BASH_ENV}"
+            export DOCKER_TAG=0.1.${BUILD_NUMBER}
+            sed "s/DOCKER_TAG/${DOCKER_TAG}" k8s/cowsay-deployment-template.yml > /tmp/deployment.${DOCKER_TAG}.yml
+            docker run -i \
+              --env AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+              --env AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+              --env AWS_DEFAULT_REGION={AWS_DEFAULT_REGION} \
+              --env EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME} \
+              ttannhaeuser/aws-k8s-deploy:latest < /tmp/deployment.${DOCKER_TAG}.yml
 workflows:
   default:
     jobs:
@@ -146,6 +170,5 @@ workflows:
           requires: [app-smoke-test, lint-dockerfile]
       - container-smoke-test:
           requires: [build-app-container]
-            
-
-          
+      - deploy-new-image:
+          requires: [container-smoke-test]
