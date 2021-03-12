@@ -12,7 +12,7 @@ jobs:
       - run:
           name: persist build number to workspace
           command: |
-            echo "export BUILD_NUMBER=${CIRCLE_BUILD_NUM}" > build_number
+            echo "export BUILD_NUMBER=${CIRCLE_BUILD_NUM}" > ~/build_number
       - persist_to_workspace:
           root: ~/
           paths:
