@@ -4,7 +4,7 @@
   _________________________________________________
  /                                                 \
 | Udacity AWS DevOps capstone project bringing      |
-| cowsays to the web                                |
+| cowsays to the web :-)                            |
  \                                                 /
   =================================================
                                                       \
