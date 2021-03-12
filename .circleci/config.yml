@@ -156,7 +156,7 @@ jobs:
           command: |
             source /tmp/workspace/build_number
             export DOCKER_TAG=0.1.${BUILD_NUMBER}
-            sed "s/DOCKER_TAG/${DOCKER_TAG}" k8s/cowsay-deployment-template.yml > /tmp/deployment.${DOCKER_TAG}.yml
+            sed "s/DOCKER_TAG/${DOCKER_TAG}/" k8s/cowsay-deployment-template.yml > /tmp/deployment.${DOCKER_TAG}.yml
             docker run -i \
               --env AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
               --env AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
