@@ -10,9 +10,13 @@ jobs:
             - python-venv-a-{{ checksum "requirements.txt" }}
             - python-venv-a-
       - run:
-          name: persist build number
+          name: persist build number to workspace
           command: |
-            echo "export BUILD_NUMBER=${CIRCLE_BUILD_NUM}" >> "${BASH_ENV}"
+            echo "export BUILD_NUMBER=${CIRCLE_BUILD_NUM}" > build_number
+          persist_to_workspace:
+            root: ~/
+            paths:
+              - build_number
       - run:
           name: setup python venv and install requirements
           command: |
@@ -103,10 +107,12 @@ jobs:
             - python-venv-a-
       - setup_remote_docker:
           version: 19.03.13
+      - attach_workspace:
+          at: /tmp/workspace
       - run: 
           name: build application container
           command: |
-            source "${BASH_ENV}"
+            source /tmp/workspace/build_number
             TAG=0.1.${BUILD_NUMBER}
             docker build -t cowsay-web:$TAG .
             echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_ID} --password-stdin
@@ -143,10 +149,12 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: update deployment using latest image
           command: |
-            source "${BASH_ENV}"
+            source /tmp/workspace/build_number
             export DOCKER_TAG=0.1.${BUILD_NUMBER}
             sed "s/DOCKER_TAG/${DOCKER_TAG}" k8s/cowsay-deployment-template.yml > /tmp/deployment.${DOCKER_TAG}.yml
             docker run -i \
