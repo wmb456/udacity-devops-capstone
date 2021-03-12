@@ -1,0 +1,11 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: udacity-capstone
+  region: eu-central-1
+
+nodeGroups:
+  - name: udacity-capstone-nodes 
+    instanceType: t2.small
+    desiredCapacity: 2
