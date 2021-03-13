@@ -177,3 +177,19 @@ kubectl get deployment cowsay-web-rolling-update
 | AWS_SECRET_ACCESS_KEY   | service access user key                       |
 | AWS_DEFAULT_REGION      | AWS region, eu-central-1                      |
 | EKS_CLUSTER_NAME        | name of the AWS EKS cluster, udacity-capstone |
+
+# how the deployment works
+
+- the _Dockerfile_ in _k8s/deployment\_container_ is used to build a container containing eksctl, aws-iam-authenticator and kubectl
+- _k8s/deployment\_container_ also contains scripts to
+  - build the container: _build-container.sh_
+  - publish the container to dockerhub: _push-container.sh_
+- as this image is static it is not build in the pipeline
+  - a changing version of the tool could cause issues - so if something changes a manual update must be done
+- the container runs a script (_k8s/deployment\_containe/deploy.sh_) 
+  - expects a deployment config as input on stdin and writes it to _deployment.yml_
+  - enables access for kubectl to the cluster
+  - runs kubectl to update the deployment
+- the related template file can be found at: _k8s/cowsay-deployment-template.yml
+- there is a job named _deploy-new-image_ that runs the image by piping in the _k8s/cowsay-deployment-template.yml_
+  - _sed_ is used to prepare a per build _/tmp/deployment.${DOCKER_TAG}.yml_ file
